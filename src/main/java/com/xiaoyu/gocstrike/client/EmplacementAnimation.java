@@ -58,7 +58,12 @@ public final class EmplacementAnimation {
             for (int key = 0; key < count; key++) {
                 frames[key] = data.getInt();
                 for (int value = 0; value < STRIDE; value++) {
-                    keys[key * STRIDE + value] = data.getFloat();
+                    float decoded = data.getFloat();
+                    // Version 1 stores sqrt-encoded HDR ratios. Decode their original saturation.
+                    if (value >= 10 && value <= 12) {
+                        decoded *= decoded;
+                    }
+                    keys[key * STRIDE + value] = decoded;
                 }
             }
             nodes[i] = new Node(parent, meshes.get(mesh), frames, keys);

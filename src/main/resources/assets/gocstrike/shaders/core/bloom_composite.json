@@ -1,0 +1,6 @@
+{
+  "vertex": "gocstrike:bloom_screen",
+  "fragment": "gocstrike:bloom_composite",
+  "samplers": [{"name": "Sampler0"}],
+  "uniforms": [{"name": "Strength", "type": "float", "count": 1, "values": [1.0]}]
+}

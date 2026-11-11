@@ -40,6 +40,10 @@ public class StrikeEntity extends Entity {
         return start < 0 ? 0 : Math.max(0, (level().getGameTime() - start + partialTick) / 20.0F);
     }
 
+    public boolean hasStarted() {
+        return entityData.get(START) >= 0;
+    }
+
     @Override
     protected void defineSynchedData(SynchedEntityData.Builder builder) {
         builder.define(START, -1L);

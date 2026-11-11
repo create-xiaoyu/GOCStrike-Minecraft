@@ -1,0 +1,10 @@
+{
+  "emplacement_score": {
+    "sounds": [
+      {
+        "name": "gocstrike:emplacement_score",
+        "stream": true
+      }
+    ]
+  }
+}

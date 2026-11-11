@@ -28,6 +28,9 @@ public final class StrikeEffects {
                 continue;
             }
             float time = strike.elapsed(partialTick);
+            if (strike.hasStarted() && time < StrikeEntity.DURATION) {
+                StrikeSubtitles.render(time, event.getGuiGraphics());
+            }
             if (time < 113.322667F || time >= StrikeEntity.DURATION) {
                 continue;
             }

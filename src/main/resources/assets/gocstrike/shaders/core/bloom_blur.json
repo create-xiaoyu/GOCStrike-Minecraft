@@ -1,0 +1,6 @@
+{
+  "vertex": "gocstrike:bloom_screen",
+  "fragment": "gocstrike:bloom_blur",
+  "samplers": [{"name": "Sampler0"}],
+  "uniforms": [{"name": "Step", "type": "float", "count": 2, "values": [0.0, 0.0]}]
+}

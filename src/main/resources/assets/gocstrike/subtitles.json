@@ -1,0 +1,15 @@
+[
+  {"start": 3, "resolved": 5.2, "end": 10, "text": "『“钢与骨，撑起将倾的防线”』", "color": "b9dce9", "top": false},
+  {"start": 10, "resolved": 12.2, "end": 17, "text": "『“火与血，照亮无声的长夜”』", "color": "f1b4a5", "top": false},
+  {"start": 17, "resolved": 19.2, "end": 24, "text": "『“雷与霆，击碎扭曲的脉络”』", "color": "b6d9ff", "top": false},
+  {"start": 24, "resolved": 26.2, "end": 31, "text": "『“咒与盾，镇守现实的边疆”』", "color": "cfb3ef", "top": false},
+  {"start": 31, "resolved": 33.2, "end": 38, "text": "『“魂与碑，铭刻无名的荣光”』", "color": "e0b3ed", "top": false},
+  {"start": 38, "resolved": 40.2, "end": 45, "text": "『“剑与焰，捍卫共同的家园”』", "color": "f2cd74", "top": false},
+  {"start": 45, "resolved": 47.2, "end": 52, "text": "『“瞳与泪，凝视断联的频道”』", "color": "9cdbed", "top": false},
+  {"start": 52, "resolved": 54.2, "end": 59, "text": "『“翼与尘，护送未归的英魂”』", "color": "d0b9ec", "top": false},
+  {"start": 59, "resolved": 61.2, "end": 66, "text": "『“血与泪，换取常态的梦想”』", "color": "f5a4ad", "top": false},
+  {"start": 66, "resolved": 68.2, "end": 73, "text": "『“风与雪，见证我们的史诗”』", "color": "9dcdf6", "top": false},
+  {"start": 73, "resolved": 77, "end": 80, "text": "以此地终焉，换人间黎明", "color": "ffe5a0", "top": true},
+  {"start": 80, "resolved": 81, "end": 83, "text": "行动代号：", "color": "ffe5a0", "top": true},
+  {"start": 83, "resolved": 84.5, "end": 113.322667, "text": "无人伤亡", "color": "ef493e", "top": true}
+]
