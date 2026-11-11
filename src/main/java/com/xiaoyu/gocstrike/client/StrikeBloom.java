@@ -57,6 +57,7 @@ public final class StrikeBloom {
     public static void tick(ClientTickEvent.Post event) {
         if (Minecraft.getInstance().level == null) {
             releaseTargets();
+            StrikeRenderer.releaseGeometry();
         }
     }
 
@@ -68,6 +69,7 @@ public final class StrikeBloom {
         Minecraft minecraft = Minecraft.getInstance();
         if (minecraft.level == null) {
             releaseTargets();
+            StrikeRenderer.releaseGeometry();
             return;
         }
         float partialTick = event.getPartialTick().getGameTimeDeltaPartialTick(false);
@@ -82,6 +84,7 @@ public final class StrikeBloom {
         }
         if (active == null) {
             releaseTargets();
+            StrikeRenderer.releaseGeometry();
             return;
         }
         if (!(minecraft.getEntityRenderDispatcher().getRenderer(active) instanceof StrikeRenderer renderer)) {
@@ -103,7 +106,7 @@ public final class StrikeBloom {
             mask.bindWrite(true);
             RenderSystem.enableDepthTest();
             RenderSystem.depthMask(false);
-            RenderSystem.disableCull();
+            RenderSystem.enableCull();
             RenderSystem.enableBlend();
             RenderSystem.defaultBlendFunc();
             RenderSystem.setShaderColor(1, 1, 1, 1);
@@ -113,15 +116,11 @@ public final class StrikeBloom {
 
             var camera = event.getCamera().getPosition();
             TRANSFORM.translation((float) (active.getX() - camera.x), (float) (active.getY() - camera.y),
-                    (float) (active.getZ() - camera.z)).scale(StrikeEntity.WORLD_SCALE);
-            var geometry = Tesselator.getInstance().begin(VertexFormat.Mode.TRIANGLES, DefaultVertexFormat.POSITION_COLOR);
-            renderer.drawEmissive(active, partialTick, TRANSFORM, geometry);
-            var mesh = geometry.build();
-            if (mesh != null) {
-                BufferUploader.drawWithShader(mesh);
-            }
+                    (float) (active.getZ() - camera.z));
+            renderer.drawEmissive(active, partialTick, TRANSFORM);
 
             RenderSystem.disableDepthTest();
+            RenderSystem.disableCull();
             RenderSystem.disableBlend();
             blur(mask, halfScratch, true);
             blur(halfScratch, halfGlow, false);

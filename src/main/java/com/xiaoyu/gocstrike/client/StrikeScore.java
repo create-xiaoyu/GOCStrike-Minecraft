@@ -25,7 +25,7 @@ public final class StrikeScore extends AbstractTickableSoundInstance {
     private static final SoundEvent SCORE = SoundEvent.createVariableRangeEvent(
             ResourceLocation.fromNamespaceAndPath(GOCStrike.MODID, "emplacement_score"));
     private final StrikeEntity strike;
-    private final float offset;
+    private volatile float offset;
 
     public StrikeScore(StrikeEntity strike) {
         super(SCORE, SoundSource.MUSIC, SoundInstance.createUnseededRandom());
@@ -46,6 +46,7 @@ public final class StrikeScore extends AbstractTickableSoundInstance {
 
     @Override
     public void tick() {
+        offset = strike.elapsed(0);
         if (strike.isRemoved() || strike.elapsed(0) >= StrikeEntity.DURATION) {
             stop();
         }

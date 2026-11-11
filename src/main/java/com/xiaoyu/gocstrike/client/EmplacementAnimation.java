@@ -11,8 +11,6 @@ import java.util.zip.GZIPInputStream;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 
-import com.xiaoyu.gocstrike.GOCStrike;
-
 /** The original Unity choreography, sampled at 20 Hz with constant runs removed. */
 public final class EmplacementAnimation {
     private static final int STRIDE = 14;
@@ -71,32 +69,50 @@ public final class EmplacementAnimation {
         if (data.hasRemaining()) {
             throw new IOException("Unexpected trailing animation data");
         }
-        GOCStrike.LOGGER.info("Loaded thaumaturgic strike: {} nodes", nodes.length);
+    }
+
+    public int nodeCount() {
+        return nodes.length;
     }
 
     public Node[] sample(float seconds, Matrix4f root) {
         float frame = seconds * sampleRate;
         for (Node node : nodes) {
-            int key = Arrays.binarySearch(node.frames, (int) frame);
-            if (key < 0) {
-                key = Math.max(0, -key - 2);
+            if (node.parent >= 0 && !nodes[node.parent].visible) {
+                node.visible = false;
+                continue;
             }
-            int next = Math.min(key + 1, node.frames.length - 1);
-            float weight = key == next ? 0 : Math.clamp((frame - node.frames[key]) / (node.frames[next] - node.frames[key]), 0, 1);
-            int a = key * STRIDE;
-            int b = next * STRIDE;
-            float[] k = node.keys;
-            for (int v = 0; v < STRIDE; v++) {
-                node.pose[v] = k[a + v] + (k[b + v] - k[a + v]) * weight;
+            if (node.frames.length > 1) {
+                int key = node.cursor;
+                if (frame < node.frames[key]) {
+                    key = Arrays.binarySearch(node.frames, (int) frame);
+                    key = key < 0 ? Math.max(0, -key - 2) : key;
+                }
+                while (key + 1 < node.frames.length && node.frames[key + 1] <= frame) {
+                    key++;
+                }
+                node.cursor = key;
+                int next = Math.min(key + 1, node.frames.length - 1);
+                float weight = key == next ? 0 : Math.clamp((frame - node.frames[key]) / (node.frames[next] - node.frames[key]), 0, 1);
+                int a = key * STRIDE;
+                int b = next * STRIDE;
+                float[] k = node.keys;
+                for (int v = 0; v < STRIDE; v++) {
+                    node.pose[v] = k[a + v] + (k[b + v] - k[a + v]) * weight;
+                }
+                rotation.set(k[a + 3], k[a + 4], k[a + 5], k[a + 6]);
+                nextRotation.set(k[b + 3], k[b + 4], k[b + 5], k[b + 6]);
+                rotation.slerp(nextRotation, weight);
+                float[] p = node.pose;
+                node.local.translationRotateScale(p[0], p[1], p[2], rotation.x, rotation.y, rotation.z, rotation.w,
+                        p[7], p[8], p[9]);
             }
-            rotation.set(k[a + 3], k[a + 4], k[a + 5], k[a + 6]);
-            nextRotation.set(k[b + 3], k[b + 4], k[b + 5], k[b + 6]);
-            rotation.slerp(nextRotation, weight);
-            Matrix4f parent = node.parent < 0 ? root : nodes[node.parent].matrix;
             float[] p = node.pose;
-            node.matrix.set(parent).translate(p[0], p[1], p[2]).rotate(rotation).scale(p[7], p[8], p[9]);
-            node.visible = (node.parent < 0 || nodes[node.parent].visible)
-                    && Math.max(p[7], Math.max(p[8], p[9])) > 0.00011F;
+            node.visible = Math.max(p[7], Math.max(p[8], p[9])) > 0.00011F;
+            if (node.visible) {
+                Matrix4f parent = node.parent < 0 ? root : nodes[node.parent].matrix;
+                node.matrix.set(parent).mul(node.local);
+            }
         }
         return nodes;
     }
@@ -108,6 +124,8 @@ public final class EmplacementAnimation {
         final float[] keys;
         final float[] pose = new float[STRIDE];
         final Matrix4f matrix = new Matrix4f();
+        final Matrix4f local = new Matrix4f();
+        int cursor;
         boolean visible;
 
         Node(int parent, float[] vertices, int[] frames, float[] keys) {
@@ -115,6 +133,9 @@ public final class EmplacementAnimation {
             this.vertices = vertices;
             this.frames = frames;
             this.keys = keys;
+            System.arraycopy(keys, 0, pose, 0, STRIDE);
+            local.translationRotateScale(pose[0], pose[1], pose[2], pose[3], pose[4], pose[5], pose[6],
+                    pose[7], pose[8], pose[9]);
         }
     }
 }
