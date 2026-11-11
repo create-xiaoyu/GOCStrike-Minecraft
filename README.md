@@ -31,6 +31,8 @@ Minecraft **1.21.1 / NeoForge 21.1.265** 模组，需要 Java 21，客户端和�
 
 ## 动画来源与再生成
 
+模型与动画来源于 SCPSL 游戏的[星河梦影](https://qm.qq.com/q/WYYBK75FWc)服务器。
+
 模型和运动编排固定取自 `goc-strike-demo` 的提交：
 
 ```text
