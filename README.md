@@ -38,3 +38,9 @@ Minecraft **1.21.1 / NeoForge 21.1.265** 模组，需要 Java 21，客户端和�
 ```
 
 参考源文件和可重复生成步骤见 [tools/README.md](tools/README.md)。
+
+## 许可与署名
+
+- 软件代码： [MIT License](LICENSE)。NeoForge MDK 模板原有声明保留在 [TEMPLATE_LICENSE.txt](TEMPLATE_LICENSE.txt)。
+- 法阵模型及由模型生成的资源：**All Rights Reserved（ARR，保留所有权利）**，不适用 MIT；具体范围见 [MODEL_LICENSE.txt](MODEL_LICENSE.txt)。
+- 音乐：《风雪史诗》，作者：**西蒙Leonardo**。音乐不在本项目 MIT 授权范围内。

@@ -1,0 +1,18 @@
+Magic-circle model assets — All Rights Reserved (ARR)
+
+The magic-circle model and model-derived resources are excluded from the
+repository's MIT software license. All rights in these assets are reserved
+by their respective rights holders.
+
+Covered assets:
+- tools/reference/goc-emplacement.mer.json
+- src/main/resources/assets/gocstrike/animation/emplacement.bin.gz
+  (assets/gocstrike/animation/emplacement.bin.gz inside the mod JAR)
+- Model geometry and model-derived data generated or extracted from these files.
+
+Use of these assets as part of normal operation of this mod is permitted.
+No separate permission to extract, modify, redistribute, sublicense, or sell
+these model assets is granted. Obtain permission from the rights holder for
+other uses.
+
+This notice does not change the MIT license of the software source code.
