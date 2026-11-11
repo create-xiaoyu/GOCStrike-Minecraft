@@ -1,22 +1,31 @@
 package com.xiaoyu.gocstrike;
 
+import java.util.ArrayList;
 import java.util.UUID;
 
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 
 public class StrikeEntity extends Entity {
     public static final float DURATION = 118.698667F;
     public static final float WORLD_SCALE = 2.4F;
+    // Original choreography: WhiteoutAt (116.032) + 0.75 seconds.
+    private static final float FINAL_STRIKE_AT = 116.782F;
     private static final EntityDataAccessor<Long> START = SynchedEntityData.defineId(StrikeEntity.class, EntityDataSerializers.LONG);
     private UUID owner;
+    private boolean finalStrikeApplied;
 
     public StrikeEntity(EntityType<? extends StrikeEntity> type, Level level) {
         super(type, level);
@@ -52,9 +61,65 @@ public class StrikeEntity extends Entity {
     @Override
     public void tick() {
         super.tick();
-        if (!level().isClientSide() && elapsed(0) >= DURATION) {
-            discard();
+        if (level() instanceof ServerLevel serverLevel) {
+            float time = elapsed(0);
+            if (!finalStrikeApplied && hasStarted() && time >= FINAL_STRIKE_AT) {
+                finalStrikeApplied = true;
+                applyFinalStrike(serverLevel);
+            }
+            if (time >= DURATION) {
+                discard();
+            }
         }
+    }
+
+    private void applyFinalStrike(ServerLevel level) {
+        // Death, logout and mod callbacks can change entity collections. Snapshot only
+        // the loaded living entities in this dimension before applying any removal.
+        var targets = new ArrayList<LivingEntity>();
+        for (Entity entity : level.getAllEntities()) {
+            if (entity instanceof LivingEntity living && !living.isRemoved()
+                    && !(living instanceof Player player && player.isSpectator())) {
+                targets.add(living);
+            }
+        }
+        int removed = 0;
+        int players = 0;
+        for (LivingEntity target : targets) {
+            if (target.isRemoved() || (target instanceof Player player && player.isSpectator())) {
+                continue;
+            }
+            try {
+                if (target instanceof ServerPlayer player) {
+                    clearInventory(player);
+                    player.kill();
+                    player.connection.disconnect(Component.translatable("message.gocstrike.erased"));
+                    players++;
+                } else {
+                    // No damage, death events, loot, experience or death animation.
+                    target.discard();
+                    removed++;
+                }
+            } catch (RuntimeException exception) {
+                GOCStrike.LOGGER.error("Final strike failed for entity {}", target.getUUID(), exception);
+            }
+        }
+        GOCStrike.LOGGER.info("Final strike in {}: removed {} living entities, processed {} players",
+                level.dimension().location(), removed, players);
+    }
+
+    private static void clearInventory(ServerPlayer player) {
+        player.getInventory().clearContent();
+        player.containerMenu.setCarried(ItemStack.EMPTY);
+        player.inventoryMenu.setCarried(ItemStack.EMPTY);
+        player.inventoryMenu.getCraftSlots().clearContent();
+        // Closing a crafting menu returns its ingredients to the inventory. Make room
+        // first, close it while the player is alive, then clear those returned stacks.
+        // Container storage and ender chests are not part of the player's inventory.
+        player.closeContainer();
+        player.getInventory().clearContent();
+        player.getInventory().setChanged();
+        player.inventoryMenu.broadcastChanges();
     }
 
     @Override

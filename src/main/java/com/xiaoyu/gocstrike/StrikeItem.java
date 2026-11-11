@@ -57,5 +57,6 @@ public class StrikeItem extends Item {
     public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag flag) {
         tooltip.add(Component.translatable("tooltip.gocstrike.use").withStyle(ChatFormatting.AQUA));
         tooltip.add(Component.translatable("tooltip.gocstrike.cancel").withStyle(ChatFormatting.GRAY));
+        tooltip.add(Component.translatable("tooltip.gocstrike.impact").withStyle(ChatFormatting.RED));
     }
 }

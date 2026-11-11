@@ -6,5 +6,7 @@
   "message.gocstrike.summoned": "奇术法阵正在上空展开",
   "message.gocstrike.cancelled": "奇术法阵已收起",
   "message.gocstrike.nothing_to_cancel": "没有可收起的法阵",
-  "message.gocstrike.already_active": "此维度的奇术法阵仍在运转"
+  "message.gocstrike.already_active": "此维度的奇术法阵仍在运转",
+  "tooltip.gocstrike.impact": "最终打击将清除本维度生物；非旁观玩家会被清空背包、杀死并断开连接",
+  "message.gocstrike.erased": "你已被奇术打击清除。"
 }
