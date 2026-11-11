@@ -1,25 +1,40 @@
+# 奇术打击
 
-Installation information
-=======
+Minecraft **1.21.1 / NeoForge 21.1.265** 模组，需要 Java 21，客户端和服务器均需安装。
 
-This template repository can be directly cloned to get you started with a new
-mod. Simply create a new repository cloned from this one, by following the
-instructions provided by [GitHub](https://docs.github.com/en/repositories/creating-and-managing-repositories/creating-a-repository-from-a-template).
+## 使用
 
-Once you have your clone, simply open the repository in the IDE of your choice. The usual recommendation for an IDE is either IntelliJ IDEA or Eclipse.
+在创造模式的「工具与实用物品」栏获取「奇术打击」，或执行：
 
-If at any point you are missing libraries in your IDE, or you've run into problems you can
-run `gradlew --refresh-dependencies` to refresh the local cache. `gradlew clean` to reset everything 
-{this does not affect your code} and then start the process again.
+```mcfunction
+/give @s gocstrike:thaumaturgic_strike
+```
 
-Mapping Names:
-============
-By default, the MDK is configured to use the official mapping names from Mojang for methods and fields 
-in the Minecraft codebase. These names are covered by a specific license. All modders should be aware of this
-license. For the latest license text, refer to the mapping file itself, or the reference copy here:
-https://github.com/NeoForged/NeoForm/blob/main/Mojang.md
+- 右键：以使用位置为固定中心，在头顶展开约 118.7 秒的完整法阵动画。
+- 潜行右键：立即收起自己召唤的法阵。
+- 每个维度同时播放一场；播放期间再次使用会显示提示。
+- 物品可重复使用，不消耗。结束或卸载区块后清理法阵；退出世界不会保存未完成的法阵。
 
-Additional Resources: 
-==========
-Community Documentation: https://docs.neoforged.net/  
-NeoForged Discord: https://discord.neoforged.net/
+建议在开阔地观看，仰视中央法阵，或退开约 40–70 格观看全景。法阵沿用原效果的 2.4 倍世界比例，主要结构位于使用点上方数十格。
+
+动画保留外围符印、悬浮晶体、逐段反射、分层旋转法阵、汇聚光束、冲击环和末尾白光。客户端在两帧姿态间插值，仅同步一个效果实体。使用原生加色渲染和几何光晕，无需额外模组或光影包。Minecraft 的光晕与 Unity HDR 泛光并不相同。
+
+此版本实现视觉效果，不造成伤害或破坏方块，不修改时间、天气、玩家视角或移动。未包含视频配乐和字幕。
+
+## 构建
+
+```powershell
+./gradlew.bat build
+```
+
+产物为 `build/libs/gocstrike-1.0.0.jar`。模型和动画已经打包，正常构建不需要 Blender、Unity 或 GIMP。
+
+## 动画来源与再生成
+
+模型和运动编排固定取自 `goc-strike-demo` 的提交：
+
+```text
+7f9a7c12f5c6576d129b6c5d7bae5a6336e66a2d
+```
+
+参考源文件和可重复生成步骤见 [tools/README.md](tools/README.md)。

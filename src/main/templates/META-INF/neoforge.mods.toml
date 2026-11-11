@@ -31,7 +31,7 @@ authors="create_xiaoyu"
 
 # The description text for the mod (multi line!) (#mandatory)
 description='''
-Example mod description.
+右键召唤头顶的奇术打击法阵，播放完整的多层符文、晶体反射与光束动画。
 '''
 
 # The [[mixins]] block allows you to declare your mixin config to FML so that it gets loaded.

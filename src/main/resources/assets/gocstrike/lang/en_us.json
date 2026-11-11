@@ -1,0 +1,10 @@
+{
+  "item.gocstrike.thaumaturgic_strike": "奇术打击",
+  "entity.gocstrike.thaumaturgic_strike": "奇术法阵",
+  "tooltip.gocstrike.use": "右键：在当前位置上空展开奇术法阵",
+  "tooltip.gocstrike.cancel": "潜行右键：收起自己召唤的法阵",
+  "message.gocstrike.summoned": "奇术法阵正在上空展开",
+  "message.gocstrike.cancelled": "奇术法阵已收起",
+  "message.gocstrike.nothing_to_cancel": "没有可收起的法阵",
+  "message.gocstrike.already_active": "此维度的奇术法阵仍在运转"
+}
