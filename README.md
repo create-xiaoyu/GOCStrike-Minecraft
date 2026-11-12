@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="src/main/resources/gocstrike-logo.png" width="280" alt="GOC Strike Logo" />
+</p>
+
 # 奇术打击
 
 Minecraft **1.21.1 / NeoForge 21.1.265** 模组，需要 Java 21，客户端和服务器均需安装。
