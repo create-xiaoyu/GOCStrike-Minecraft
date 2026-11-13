@@ -119,6 +119,13 @@ public final class StrikeBloom {
                     (float) (active.getZ() - camera.z));
             renderer.drawEmissive(active, partialTick, TRANSFORM);
 
+            // NeoForge 在 LevelRenderer 返回后发出 AFTER_LEVEL，此时 Iris 已完成
+            // finalizeLevelRendering。使用未被光影替换的原版着色器绘制清晰本体，
+            // 与下面的光晕共享时序，避免只留下模糊光晕或再次受到光影曝光处理。
+            // 主目标仍保留场景深度；不写深度，以免影响后续透明效果与手部绘制。
+            main.bindWrite(true);
+            renderer.drawEmissive(active, partialTick, TRANSFORM);
+
             RenderSystem.disableDepthTest();
             RenderSystem.disableCull();
             RenderSystem.disableBlend();

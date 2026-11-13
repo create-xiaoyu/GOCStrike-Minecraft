@@ -62,16 +62,9 @@ public class StrikeRenderer extends EntityRenderer<StrikeEntity> {
     @Override
     public void render(StrikeEntity entity, float yaw, float partialTick, PoseStack poses,
             MultiBufferSource buffers, int packedLight) {
-        float time = entity.elapsed(partialTick);
-        if (time >= StrikeEntity.DURATION) {
-            return;
-        }
-        StrikeRenderTypes.STROKES.setupRenderState();
-        try {
-            drawEmissive(entity, partialTick, poses.last().pose());
-        } finally {
-            StrikeRenderTypes.STROKES.clearRenderState();
-        }
+        // 本体与光晕统一在 AFTER_LEVEL 绘制。实体阶段的原版着色器会被 Iris 替换，
+        // 使本体进入光影的雾与后处理，而光晕仍在后处理结束后绘制，造成两者不一致。
+        // 保留实体作为动画锚点；实际几何由 StrikeBloom 绘制并复用同一份 GPU 缓冲。
     }
 
     /** One entity-local GPU mesh per frame, reused unchanged by the world and bloom passes. */
