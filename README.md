@@ -6,6 +6,8 @@
 
 Minecraft **1.21.1 / NeoForge 21.1.265** 模组，需要 Java 21，客户端和服务器均需安装。
 
+[实现说明（NeoForge 1.21.1）](docs/implementation-1.21.1.md)
+
 ## 使用
 
 在创造模式的「工具与实用物品」栏获取「奇术打击」，或执行：
