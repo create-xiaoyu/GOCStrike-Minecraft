@@ -1,9 +1,12 @@
 package com.xiaoyu.gocstrike.client;
 
+import com.xiaoyu.gocstrike.DamoclesEntity;
+import com.xiaoyu.gocstrike.DamoclesTimeline;
 import com.xiaoyu.gocstrike.GOCStrike;
 import com.xiaoyu.gocstrike.StrikeEntity;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.world.entity.Entity;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -29,13 +32,22 @@ public final class StrikeMedia {
     @SubscribeEvent
     public static void tick(ClientTickEvent.Post event) {
         Minecraft minecraft = Minecraft.getInstance();
-        StrikeEntity active = null;
+        Entity active = null;
+        double nearestSword = 72 * 72;
         if (minecraft.level != null && minecraft.player != null) {
             for (var entity : minecraft.level.entitiesForRendering()) {
                 if (entity instanceof StrikeEntity strike && !strike.isRemoved() && strike.hasStarted()
                         && strike.elapsed(0) < StrikeEntity.DURATION) {
                     active = strike;
                     break;
+                }
+                if (entity instanceof DamoclesEntity sword && !sword.isRemoved() && sword.hasLocked()
+                        && sword.elapsed(0) < DamoclesTimeline.END) {
+                    double distance = sword.distanceToSqr(minecraft.player);
+                    if (distance < nearestSword) {
+                        active = sword;
+                        nearestSword = distance;
+                    }
                 }
             }
         }
@@ -60,7 +72,7 @@ public final class StrikeMedia {
             score.finish();
             minecraft.getSoundManager().stop(score);
         }
-        score = new StrikeScore(active);
+        score = active instanceof StrikeEntity strike ? new StrikeScore(strike) : new StrikeScore((DamoclesEntity) active);
         minecraft.getSoundManager().play(score);
         retryTicks = 40;
     }

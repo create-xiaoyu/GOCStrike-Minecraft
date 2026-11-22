@@ -90,14 +90,10 @@ public class StrikeEntity extends Entity {
                 continue;
             }
             try {
-                if (target instanceof ServerPlayer player) {
-                    clearInventory(player);
-                    player.kill();
-                    player.connection.disconnect(Component.translatable("message.gocstrike.erased"));
+                eraseTarget(target);
+                if (target instanceof ServerPlayer) {
                     players++;
                 } else {
-                    // No damage, death events, loot, experience or death animation.
-                    target.discard();
                     removed++;
                 }
             } catch (RuntimeException exception) {
@@ -106,6 +102,17 @@ public class StrikeEntity extends Entity {
         }
         GOCStrike.LOGGER.info("Final strike in {}: removed {} living entities, processed {} players",
                 level.dimension().location(), removed, players);
+    }
+
+    static void eraseTarget(LivingEntity target) {
+        if (target instanceof ServerPlayer player) {
+            clearInventory(player);
+            player.kill();
+            player.connection.disconnect(Component.translatable("message.gocstrike.erased"));
+        } else {
+            // 普通生物直接移除，跳过伤害、死亡动画、掉落和经验。
+            target.discard();
+        }
     }
 
     private static void clearInventory(ServerPlayer player) {

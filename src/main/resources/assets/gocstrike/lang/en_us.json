@@ -1,5 +1,10 @@
 {
   "item.gocstrike.thaumaturgic_strike": "奇术打击",
+  "item.gocstrike.damocles_sword": "Sword of Damocles",
+  "entity.gocstrike.damocles_sword": "Sword of Damocles",
+  "tooltip.gocstrike.damocles_sword.use": "Right-click to launch the Sword of Damocles where you aim.",
+  "tooltip.gocstrike.damocles_sword.lock": "A hit locks and lifts the target. The giant sword strikes after five turns.",
+  "tooltip.gocstrike.damocles_sword.impact": "The final strike erases its target. Players lose their inventory and are disconnected.",
   "entity.gocstrike.thaumaturgic_strike": "奇术法阵",
   "tooltip.gocstrike.use": "右键：在当前位置上空展开奇术法阵",
   "tooltip.gocstrike.cancel": "潜行右键：收起自己召唤的法阵",
@@ -8,5 +13,6 @@
   "message.gocstrike.nothing_to_cancel": "没有可收起的法阵",
   "message.gocstrike.already_active": "此维度的奇术法阵仍在运转",
   "tooltip.gocstrike.impact": "最终打击将清除本维度生物；非旁观玩家会被清空背包、杀死并断开连接",
-  "message.gocstrike.erased": "你已被奇术打击清除。"
+  "message.gocstrike.erased": "你已被奇术打击清除。",
+  "tooltip.gocstrike.damocles_sword.cancel": "Sneak-right-click to release the target and recall the sword"
 }

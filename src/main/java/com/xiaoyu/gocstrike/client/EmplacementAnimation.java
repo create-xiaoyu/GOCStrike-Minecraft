@@ -14,6 +14,9 @@ import org.joml.Quaternionf;
 /** The original Unity choreography, sampled at 20 Hz with constant runs removed. */
 public final class EmplacementAnimation {
     private static final int STRIDE = 14;
+    // 六个主体层是 1 号节点到 1777 号节点；第六层是法阵中央的白色五角星。
+    static final int CORE_STAR_NODE = 1748;
+    private static final int CORE_NODE_COUNT = 1778;
     private final Map<Integer, float[]> meshes = new HashMap<>();
     private final Node[] nodes;
     private final int sampleRate;
@@ -76,8 +79,27 @@ public final class EmplacementAnimation {
     }
 
     public Node[] sample(float seconds, Matrix4f root) {
+        sample(seconds, root, 0, nodes.length);
+        return nodes;
+    }
+
+    Node[] sampleCore(float seconds, Matrix4f root) {
+        sample(seconds, root, 0, CORE_NODE_COUNT);
+        return nodes;
+    }
+
+    void sampleCoreStar(float seconds, Matrix4f root) {
+        sample(seconds, root, CORE_STAR_NODE, CORE_NODE_COUNT);
+    }
+
+    static int coreNodeCount() {
+        return CORE_NODE_COUNT;
+    }
+
+    private void sample(float seconds, Matrix4f root, int start, int end) {
         float frame = seconds * sampleRate;
-        for (Node node : nodes) {
+        for (int index = start; index < end; index++) {
+            Node node = nodes[index];
             if (node.parent >= 0 && !nodes[node.parent].visible) {
                 node.visible = false;
                 continue;
@@ -114,7 +136,6 @@ public final class EmplacementAnimation {
                 node.matrix.set(parent).mul(node.local);
             }
         }
-        return nodes;
     }
 
     public static final class Node {

@@ -1,6 +1,8 @@
 package com.xiaoyu.gocstrike.client;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.joml.Matrix4f;
 import org.lwjgl.opengl.GL11;
@@ -13,6 +15,8 @@ import com.mojang.blaze3d.vertex.BufferUploader;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexFormat;
+import com.xiaoyu.gocstrike.DamoclesEntity;
+import com.xiaoyu.gocstrike.DamoclesTimeline;
 import com.xiaoyu.gocstrike.GOCStrike;
 import com.xiaoyu.gocstrike.StrikeEntity;
 
@@ -20,6 +24,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.phys.Vec3;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -40,6 +45,10 @@ public final class StrikeBloom {
     private static final Matrix4f TRANSFORM = new Matrix4f();
 
     private StrikeBloom() {
+    }
+
+    static boolean isReady() {
+        return blurShader != null && compositeShader != null;
     }
 
     public static void registerShaders(RegisterShadersEvent event) throws IOException {
@@ -63,7 +72,7 @@ public final class StrikeBloom {
 
     @SubscribeEvent
     public static void render(RenderLevelStageEvent event) {
-        if (event.getStage() != RenderLevelStageEvent.Stage.AFTER_LEVEL || blurShader == null || compositeShader == null) {
+        if (event.getStage() != RenderLevelStageEvent.Stage.AFTER_LEVEL || !isReady()) {
             return;
         }
         Minecraft minecraft = Minecraft.getInstance();
@@ -73,21 +82,30 @@ public final class StrikeBloom {
             return;
         }
         float partialTick = event.getPartialTick().getGameTimeDeltaPartialTick(false);
-        StrikeEntity active = null;
+        var camera = event.getCamera().getPosition();
+        var dispatcher = minecraft.getEntityRenderDispatcher();
+        StrikeEntity activeStrike = null;
+        StrikeRenderer strikeRenderer = null;
+        List<DamoclesEntity> swords = new ArrayList<>();
         for (var entity : minecraft.level.entitiesForRendering()) {
-            if (entity instanceof StrikeEntity strike && !strike.isRemoved() && strike.hasStarted()
+            if (activeStrike == null && entity instanceof StrikeEntity strike && !strike.isRemoved() && strike.hasStarted()
                     && strike.elapsed(partialTick) < StrikeEntity.DURATION
-                    && strike.position().distanceToSqr(event.getCamera().getPosition()) < 512 * 512) {
-                active = strike;
-                break;
+                    && strike.position().distanceToSqr(camera) < 512 * 512
+                    && dispatcher.getRenderer(strike) instanceof StrikeRenderer renderer) {
+                activeStrike = strike;
+                strikeRenderer = renderer;
+            } else if (entity instanceof DamoclesEntity sword && !sword.isRemoved()
+                    && sword.renderTime(partialTick) < DamoclesTimeline.END
+                    && dispatcher.getRenderer(sword) instanceof DamoclesRenderer renderer
+                    && renderer.shouldRender(sword, event.getFrustum(), camera.x, camera.y, camera.z)) {
+                swords.add(sword);
             }
         }
-        if (active == null) {
-            releaseTargets();
+        if (activeStrike == null) {
             StrikeRenderer.releaseGeometry();
-            return;
         }
-        if (!(minecraft.getEntityRenderDispatcher().getRenderer(active) instanceof StrikeRenderer renderer)) {
+        if (activeStrike == null && swords.isEmpty()) {
+            releaseTargets();
             return;
         }
 
@@ -114,17 +132,25 @@ public final class StrikeBloom {
             modelView.mul(event.getModelViewMatrix());
             RenderSystem.applyModelViewMatrix();
 
-            var camera = event.getCamera().getPosition();
-            TRANSFORM.translation((float) (active.getX() - camera.x), (float) (active.getY() - camera.y),
-                    (float) (active.getZ() - camera.z));
-            renderer.drawEmissive(active, partialTick, TRANSFORM);
+            // 只给剑的光晕染蓝，保留主画面里的白色剑芯和 OBJ 的细节配色。
+            RenderSystem.setShaderColor(0.20F, 0.45F, 1.0F, 1.0F);
+            drawSwords(minecraft, swords, partialTick, camera);
+            RenderSystem.setShaderColor(1, 1, 1, 1);
+            if (strikeRenderer != null) {
+                TRANSFORM.translation((float) (activeStrike.getX() - camera.x),
+                        (float) (activeStrike.getY() - camera.y), (float) (activeStrike.getZ() - camera.z));
+                strikeRenderer.drawEmissive(activeStrike, partialTick, TRANSFORM);
+            }
 
             // NeoForge 在 LevelRenderer 返回后发出 AFTER_LEVEL，此时 Iris 已完成
             // finalizeLevelRendering。使用未被光影替换的原版着色器绘制清晰本体，
             // 与下面的光晕共享时序，避免只留下模糊光晕或再次受到光影曝光处理。
-            // 主目标仍保留场景深度；不写深度，以免影响后续透明效果与手部绘制。
+            // 奇术打击保留原有的透明绘制方式。剑身为不透明模型，需要写深度来遮挡背面的刃口。
             main.bindWrite(true);
-            renderer.drawEmissive(active, partialTick, TRANSFORM);
+            drawSwords(minecraft, swords, partialTick, camera);
+            if (strikeRenderer != null) {
+                strikeRenderer.drawEmissive(activeStrike, partialTick, TRANSFORM);
+            }
 
             RenderSystem.disableDepthTest();
             RenderSystem.disableCull();
@@ -152,6 +178,14 @@ public final class StrikeBloom {
             RenderSystem.enableCull();
             RenderSystem.disableBlend();
             RenderSystem.defaultBlendFunc();
+        }
+    }
+
+    private static void drawSwords(Minecraft minecraft, List<DamoclesEntity> swords, float partialTick, Vec3 camera) {
+        for (var sword : swords) {
+            if (minecraft.getEntityRenderDispatcher().getRenderer(sword) instanceof DamoclesRenderer renderer) {
+                renderer.drawEmissive(sword, partialTick, camera);
+            }
         }
     }
 
