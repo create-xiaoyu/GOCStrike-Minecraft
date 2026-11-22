@@ -1,0 +1,18 @@
+{
+  "emplacement_score": {
+    "sounds": [
+      {
+        "name": "gocstrike:emplacement_score",
+        "stream": true
+      }
+    ]
+  },
+  "damocles_score": {
+    "sounds": [
+      {
+        "name": "gocstrike:damocles_score",
+        "stream": true
+      }
+    ]
+  }
+}

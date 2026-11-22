@@ -1,7 +1,5 @@
 package com.xiaoyu.gocstrike;
 
-import net.minecraft.util.Mth;
-
 public final class DamoclesTimeline {
     public static final float LIFT_START = 1.5F;
     public static final float LIFT_END = 8;
@@ -29,7 +27,7 @@ public final class DamoclesTimeline {
     }
 
     public static float progress(float time, float start, float end) {
-        return Mth.clamp((time - start) / (end - start), 0, 1);
+        return Math.max(0, Math.min(1, (time - start) / (end - start)));
     }
 
     public static float ease(float time, float start, float end) {

@@ -40,13 +40,27 @@ Minecraft **1.21.1 / NeoForge 21.1.265** 模组，需要 Java 21，客户端和�
 - 巨剑小幅浮动并旋转五圈，充能让剑柄至剑尖依次变得更亮。充能结束时停转、扩散光环，随后短促上提，并在音乐第 70 秒下刺。
 - 最终打击只抹除被锁定的生物，沿用上方所述的抹除规则。下刺末段拖出短残影，命中时在剑尖闪光并同时播放晶裂和重击，此时配乐短暂压低音量。剑尖停顿约 0.27 秒，双层冲击环从接触点扩散，法阵先震开，剑和徽记随后分解。音乐在第 78 秒结束。多人重叠施放时，附近观众收听最近一场达摩克里斯配乐。
 
+### Forge 1.12.2
+
+客户端和服务器都安装 `gocstrike-forge-1.12.2-1.0.1.jar`，使用 Java 8 和相同的 Forge 版本。两件物品位于创造模式的「工具」栏，也可以用上方的 `/give` 命令。两件物品都支持副手，旁观者免疫打击。
+
+达摩克里斯之剑落下时用玻璃破碎声替代紫水晶音效。法阵的模糊泛光需要 OpenGL 3.0 和游戏帧缓冲支持，条件不足时仍会绘制发光线条。
+
 ## 构建
 
 ```powershell
 ./gradlew.bat build
 ```
 
-产物为 `build/libs/gocstrike-1.0.1.jar`。模型和动画已经打包，正常构建不需要 Blender、Unity 或 GIMP。
+上方命令构建 NeoForge 1.21.1，产物为 `build/libs/gocstrike-1.0.1.jar`。模型和动画已经打包，正常构建不需要 Blender、Unity 或 GIMP。
+
+Forge 1.12.2 使用 RetroFuturaGradle 独立构建，通过 Gradle 的本地 JDK 8 工具链编译。
+
+```powershell
+./gradlew.bat -p ports/forge-1.12.2 build
+```
+
+如果 Gradle 找不到已安装的 JDK 8，用 `-Porg.gradle.java.installations.paths` 指定 JDK 目录。安装包是 `ports/forge-1.12.2/build/libs/gocstrike-forge-1.12.2-1.0.1.jar`。带 `-dev` 或 `-bundled-dev` 的 JAR 用于开发。
 
 ## 动画来源与再生成
 
