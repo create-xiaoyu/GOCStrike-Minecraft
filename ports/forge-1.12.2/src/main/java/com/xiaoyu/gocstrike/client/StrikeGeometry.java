@@ -19,7 +19,7 @@ final class StrikeGeometry {
     }
 
     void appendStrike(LegacyBatch sink, StrikeEntity entity, float partialTick, Vec3d camera) {
-        Vec3d relative = camera.subtract(entity.renderPosition(1));
+        Vec3d relative = entity.renderPosition(1).subtract(camera);
         strikeRoot.translation((float) relative.x, (float) relative.y, (float) relative.z).scale(StrikeEntity.WORLD_SCALE);
         for (EmplacementAnimation.Node node : animation.sample(entity.elapsed(partialTick), strikeRoot)) {
             if (!node.visible || node.vertices == null || node.pose[13] <= 0) {

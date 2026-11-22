@@ -36,14 +36,14 @@ final class DamoclesGeometry {
             LegacyBatch solid, LegacyBatch transparent, LegacyBatch seal) {
         float time = entity.renderTime(partialTick);
         float scatter = DamoclesTimeline.ease(time, DamoclesTimeline.SWORD_BREAK, DamoclesTimeline.END);
-        Vec3d relative = camera.subtract(entity.renderPosition(partialTick));
+        Vec3d relative = entity.renderPosition(partialTick).subtract(camera);
         if (mesh != null && swordPose(entity, partialTick, relative)) {
             float printed = entity.hasLocked() ? DamoclesTimeline.printed(time) : 1;
             float charge = entity.hasLocked() ? DamoclesTimeline.turns(time) / 5 : 0.8F;
             mesh.draw(scatter == 0 ? solid : transparent, swordPose, printed, charge, scatter);
         }
         if (entity.hasLocked() && time < DamoclesTimeline.END) {
-            Vec3d feet = camera.subtract(entity.captiveFeet(partialTick));
+            Vec3d feet = entity.captiveFeet(partialTick).subtract(camera);
             scenePose.translation((float) relative.x, (float) relative.y, (float) relative.z);
             sealPose.translation((float) feet.x, (float) feet.y, (float) feet.z);
             float sealScatter = DamoclesTimeline.ease(time, DamoclesTimeline.SEAL_BREAK, DamoclesTimeline.END);
