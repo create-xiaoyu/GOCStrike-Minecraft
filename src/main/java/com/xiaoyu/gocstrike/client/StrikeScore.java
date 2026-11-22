@@ -4,9 +4,12 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
+import java.util.function.DoubleSupplier;
 
 import javax.sound.sampled.AudioFormat;
 
+import com.xiaoyu.gocstrike.DamoclesEntity;
+import com.xiaoyu.gocstrike.DamoclesTimeline;
 import com.xiaoyu.gocstrike.GOCStrike;
 import com.xiaoyu.gocstrike.StrikeEntity;
 
@@ -19,25 +22,40 @@ import net.minecraft.client.sounds.SoundBufferLibrary;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.entity.Entity;
 
 /** Non-spatial streaming score. A late observer starts at the current animation time. */
 public final class StrikeScore extends AbstractTickableSoundInstance {
     private static final SoundEvent SCORE = SoundEvent.createVariableRangeEvent(
             ResourceLocation.fromNamespaceAndPath(GOCStrike.MODID, "emplacement_score"));
-    private final StrikeEntity strike;
+    private static final SoundEvent DAMOCLES_SCORE = SoundEvent.createVariableRangeEvent(
+            ResourceLocation.fromNamespaceAndPath(GOCStrike.MODID, "damocles_score"));
+    private final Entity entity;
+    private final DoubleSupplier time;
+    private final float duration;
     private volatile float offset;
 
     public StrikeScore(StrikeEntity strike) {
-        super(SCORE, SoundSource.MUSIC, SoundInstance.createUnseededRandom());
-        this.strike = strike;
-        offset = strike.elapsed(0);
-        relative = true;
-        attenuation = SoundInstance.Attenuation.NONE;
-        volume = 0.85F;
+        this(SCORE, strike, () -> strike.elapsed(0), StrikeEntity.DURATION);
     }
 
-    public boolean belongsTo(StrikeEntity entity) {
-        return strike == entity;
+    public StrikeScore(DamoclesEntity sword) {
+        this(DAMOCLES_SCORE, sword, () -> sword.elapsed(0), DamoclesTimeline.END);
+    }
+
+    private StrikeScore(SoundEvent sound, Entity entity, DoubleSupplier time, float duration) {
+        super(sound, SoundSource.MUSIC, SoundInstance.createUnseededRandom());
+        this.entity = entity;
+        this.time = time;
+        this.duration = duration;
+        offset = (float) time.getAsDouble();
+        relative = true;
+        attenuation = SoundInstance.Attenuation.NONE;
+        updateVolume();
+    }
+
+    public boolean belongsTo(Entity entity) {
+        return this.entity == entity;
     }
 
     public void finish() {
@@ -46,10 +64,16 @@ public final class StrikeScore extends AbstractTickableSoundInstance {
 
     @Override
     public void tick() {
-        offset = strike.elapsed(0);
-        if (strike.isRemoved() || strike.elapsed(0) >= StrikeEntity.DURATION) {
+        offset = (float) time.getAsDouble();
+        updateVolume();
+        if (entity.isRemoved() || offset >= duration) {
             stop();
         }
+    }
+
+    private void updateVolume() {
+        // 保留原音乐播放位置，只在达摩克里斯终击附近暂时让出音量。
+        volume = 0.85F * (entity instanceof DamoclesEntity ? DamoclesTimeline.impactMusicGain(offset) : 1);
     }
 
     @Override

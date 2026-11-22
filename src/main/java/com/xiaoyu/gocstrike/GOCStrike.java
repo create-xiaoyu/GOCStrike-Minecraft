@@ -28,10 +28,16 @@ public class GOCStrike {
     public static final DeferredRegister<EntityType<?>> ENTITIES = DeferredRegister.create(BuiltInRegistries.ENTITY_TYPE, MODID);
     public static final DeferredItem<Item> THAUMATURGIC_STRIKE = ITEMS.register("thaumaturgic_strike",
             () -> new StrikeItem(new Item.Properties().stacksTo(1).fireResistant()));
+    public static final DeferredItem<Item> DAMOCLES_SWORD = ITEMS.register("damocles_sword",
+            () -> new DamoclesItem(new Item.Properties().stacksTo(1)));
     public static final DeferredHolder<EntityType<?>, EntityType<StrikeEntity>> STRIKE = ENTITIES.register("thaumaturgic_strike",
             () -> EntityType.Builder.<StrikeEntity>of(StrikeEntity::new, MobCategory.MISC)
                     .sized(1.0F, 1.0F).clientTrackingRange(32).updateInterval(20)
                     .noSave().noSummon().fireImmune().build(MODID + ":thaumaturgic_strike"));
+    public static final DeferredHolder<EntityType<?>, EntityType<DamoclesEntity>> DAMOCLES = ENTITIES.register("damocles_sword",
+            () -> EntityType.Builder.<DamoclesEntity>of(DamoclesEntity::new, MobCategory.MISC)
+                    .sized(0.1F, 0.1F).clientTrackingRange(16).updateInterval(1)
+                    .noSave().noSummon().fireImmune().build(MODID + ":damocles_sword"));
 
     // The constructor for the mod class is the first code that is run when your mod is loaded.
     // FML will recognize some parameter types like IEventBus or ModContainer and pass them in automatically.
@@ -44,6 +50,7 @@ public class GOCStrike {
     private void addCreativeItems(BuildCreativeModeTabContentsEvent event) {
         if (event.getTabKey() == CreativeModeTabs.TOOLS_AND_UTILITIES) {
             event.accept(THAUMATURGIC_STRIKE);
+            event.accept(DAMOCLES_SWORD);
         }
     }
 }
