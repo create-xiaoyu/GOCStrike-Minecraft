@@ -1,0 +1,9 @@
+plugins {
+    id 'net.neoforged.moddev'
+}
+
+ext.neoVersion = '21.4.161'
+ext.platformSourceOverrides = [
+        'com/xiaoyu/gocstrike/client/DamoclesModels.java',
+]
+apply from: rootProject.file('ports/neoforge-1.21.2-3-shared/neoforge.gradle')

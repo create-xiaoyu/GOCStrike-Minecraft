@@ -1,0 +1,68 @@
+group = rootProject.mod_group_id
+version = rootProject.mod_version
+base.archivesName = "gocstrike-${project.name}"
+java.toolchain.languageVersion = JavaLanguageVersion.of(project.findProperty('portJavaVersion') ?: 25)
+def neoVersion = project.ext.neoVersion
+def minecraftVersion = project.name.substring('neoforge-'.length())
+
+neoForge {
+    version = neoVersion
+    runs {
+        client { client() }
+        server {
+            server()
+            programArgument '--nogui'
+        }
+    }
+    mods {
+        gocstrike {
+            sourceSet sourceSets.main
+        }
+    }
+}
+
+def metadata = [
+        loader_version_range: rootProject.loader_version_range,
+        mod_id: rootProject.mod_id,
+        mod_name: rootProject.mod_name,
+        mod_license: rootProject.mod_license,
+        mod_version: rootProject.mod_version,
+        neo_version: neoVersion,
+        minecraft_version_range: "[${minecraftVersion}]",
+]
+sourceSets.main.resources.srcDirs(rootProject.file('src/main/templates'), rootProject.file('ports/neoforge-26-shared/src/main/resources'))
+sourceSets.main.java.srcDir(rootProject.file('ports/neoforge-26-shared/src/main/java'))
+def usesLegacyBlaze3D = project.findProperty('legacyBlaze3D') ?: false
+if (usesLegacyBlaze3D) {
+    sourceSets.main.java.srcDir(rootProject.file('ports/neoforge-26-shared/src/blaze3d-26.1/java'))
+}
+tasks.named('processResources', ProcessResources) {
+    from(rootProject.file('src/main/resources')) {
+        exclude 'assets/gocstrike/shaders/core/bloom_*'
+    }
+    filteringCharset = 'UTF-8'
+    if (usesLegacyBlaze3D) {
+        filesMatching('assets/gocstrike/shaders/core/*.fsh') {
+            filter { line ->
+                line.replace('#extension GL_ARB_separate_shader_objects : require', '').replace('layout(location = 0) ', '')
+            }
+        }
+    }
+    inputs.properties(metadata)
+    filesMatching('META-INF/neoforge.mods.toml') {
+        expand(metadata)
+    }
+}
+def sharedJava = objects.sourceDirectorySet('sharedJava', 'GOC Strike common sources')
+sharedJava.srcDir(rootProject.file('src/main/java'))
+sharedJava.include('**/DamoclesTimeline.java', '**/EmplacementAnimation.java', '**/StrikeMedia.java')
+sourceSets.main.java.source(sharedJava)
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+}
+
+tasks.named('jar', Jar) {
+    from(rootProject.files('LICENSE', 'MODEL_LICENSE.txt', 'TEMPLATE_LICENSE.txt')) {
+        into('META-INF/licenses')
+    }
+}

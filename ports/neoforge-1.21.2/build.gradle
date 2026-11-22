@@ -1,0 +1,6 @@
+plugins {
+    id 'net.neoforged.moddev'
+}
+
+ext.neoVersion = '21.2.1-beta'
+apply from: rootProject.file('ports/neoforge-1.21.2-3-shared/neoforge.gradle')

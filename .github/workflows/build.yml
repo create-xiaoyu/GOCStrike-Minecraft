@@ -12,11 +12,15 @@ jobs:
           fetch-depth: 0
           fetch-tags: true
 
-      - name: Setup JDK 21
+      - name: Set up Java toolchains
         uses: actions/setup-java@v4
         with:
-          java-version: '21'
           distribution: 'temurin'
+          java-version: |
+            8
+            17
+            21
+            25
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
@@ -26,5 +30,11 @@ jobs:
       - name: Make Gradle wrapper executable
         run: chmod +x ./gradlew
 
-      - name: Build with Gradle
-        run: ./gradlew build
+      - name: Build the root project and its ports
+        run: ./gradlew build "-Porg.gradle.java.installations.paths=$JAVA_HOME_17_X64,$JAVA_HOME_21_X64,$JAVA_HOME_25_X64"
+
+      - name: Build Forge 1.7.10
+        run: ./gradlew -p ports/forge-1.7.10 build "-Porg.gradle.java.installations.paths=$JAVA_HOME_8_X64"
+
+      - name: Build Forge 1.12.2
+        run: ./gradlew -p ports/forge-1.12.2 build "-Porg.gradle.java.installations.paths=$JAVA_HOME_8_X64"

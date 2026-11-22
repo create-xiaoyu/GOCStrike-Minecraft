@@ -1,0 +1,6 @@
+plugins {
+    id 'net.neoforged.moddev.legacyforge'
+}
+
+ext.forgeVersion = '46.0.14'
+apply from: rootProject.file('ports/forge-1.20-shared/forge.gradle')

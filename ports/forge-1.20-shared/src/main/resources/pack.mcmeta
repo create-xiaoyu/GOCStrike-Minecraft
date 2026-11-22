@@ -1,0 +1,7 @@
+{
+  "pack": {
+    "pack_format": ${packFormat},
+    "forge:server_data_pack_format": ${dataPackFormat},
+    "description": "GOC Strike"
+  }
+}
