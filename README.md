@@ -66,7 +66,7 @@
 
 ### Forge 1.12.2
 
-客户端和服务器都安装 `gocstrike-forge-1.12.2-1.0.1.jar`，使用 Java 8 和相同的 Forge 版本。发布 JAR 已在 Forge 14.23.5.2864 服务端验证。两件物品位于创造模式的「工具」栏，也可以用上方的 `/give` 命令。两件物品都支持副手，旁观者免疫打击。
+客户端和服务器都安装 `gocstrike-forge-1.12.2-<模组版本>.jar`，使用 Java 8 和相同的 Forge 版本。发布 JAR 已在 Forge 14.23.5.2864 服务端验证。两件物品位于创造模式的「工具」栏，也可以用上方的 `/give` 命令。两件物品都支持副手，旁观者免疫打击。
 
 达摩克里斯之剑落下时用玻璃破碎声替代紫水晶音效。法阵的模糊泛光需要 OpenGL 3.0 和游戏帧缓冲支持，条件不足时仍会绘制发光线条。
 
@@ -85,7 +85,7 @@
 
 如果 Gradle 未自动发现已安装的 JDK，可用 `-Porg.gradle.java.installations.paths` 传入以逗号分隔的 JDK 安装目录。
 
-NeoForge 1.21.1 的 JAR 位于 `build/libs/`。其他版本的 JAR 位于 `ports/<加载器>-<Minecraft 版本>/build/libs/`，文件名包含加载器和 Minecraft 版本。各版本均打包原有模型、动画和配乐。
+发布 JAR 统一命名为 `gocstrike-<加载器>-<Minecraft 版本>-<模组版本>.jar`。NeoForge 1.21.1 的 `gocstrike-neoforge-1.21.1-<模组版本>.jar` 位于 `build/libs/`，其他版本的 JAR 位于 `ports/<加载器>-<Minecraft 版本>/build/libs/`。各版本均打包原有模型、动画和配乐。
 
 Forge 1.7.10 和 1.12.2 使用 RetroFuturaGradle 独立构建。安装文件名形如 `gocstrike-forge-<Minecraft 版本>-<模组版本>.jar` 的 JAR。同目录下带 `-dev` 或 `-bundled-dev` 的文件用于开发。
 
