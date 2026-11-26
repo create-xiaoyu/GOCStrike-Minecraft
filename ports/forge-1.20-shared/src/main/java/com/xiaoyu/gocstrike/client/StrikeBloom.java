@@ -74,7 +74,11 @@ public final class StrikeBloom {
 
     @SubscribeEvent
     public static void render(RenderLevelStageEvent event) {
-        if (event.getStage() != ForgeRenderStage.BLOOM || !isReady()) {
+        if (!isReady()) {
+            return;
+        }
+        Matrix4f view = ForgeRenderStage.viewForBloom(event);
+        if (view == null) {
             return;
         }
         Minecraft minecraft = Minecraft.getInstance();
@@ -131,7 +135,7 @@ public final class StrikeBloom {
             RenderSystem.defaultBlendFunc();
             RenderSystem.setShaderColor(1, 1, 1, 1);
             RenderSystem.setShader(GameRenderer::getPositionColorShader);
-            modelView.mulPoseMatrix(event.getPoseStack().last().pose());
+            modelView.mulPoseMatrix(view);
             RenderSystem.applyModelViewMatrix();
 
             // 只给剑的光晕染蓝，保留主画面里的白色剑芯和 OBJ 的细节配色。

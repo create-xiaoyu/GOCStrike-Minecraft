@@ -3,13 +3,17 @@ package com.xiaoyu.gocstrike.client;
 import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.blaze3d.vertex.VertexBuffer;
 import com.mojang.blaze3d.platform.GlStateManager;
+import net.minecraftforge.client.event.RenderLevelStageEvent;
+import org.joml.Matrix4f;
 import org.lwjgl.opengl.GL30;
 import net.minecraftforge.client.event.RenderLevelStageEvent.Stage;
 
 final class ForgeRenderStage {
-    static final Stage BLOOM = Stage.AFTER_WEATHER;
-
     private ForgeRenderStage() {
+    }
+
+    static Matrix4f viewForBloom(RenderLevelStageEvent event) {
+        return event.getStage() == Stage.AFTER_WEATHER ? event.getPoseStack().last().pose() : null;
     }
 
     static VertexBuffer createVertexBuffer() {
