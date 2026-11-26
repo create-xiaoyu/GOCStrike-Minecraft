@@ -1,0 +1,67 @@
+plugins {
+    id 'java'
+    id 'com.gradleup.shadow' version '9.6.1'
+    id 'com.gtnewhorizons.retrofuturagradle' version '2.0.5'
+}
+
+def sharedRoot = file('../..')
+def modProperties = new Properties()
+file('../../gradle.properties').withInputStream { modProperties.load(it) }
+version = modProperties.mod_version
+group = modProperties.mod_group_id
+
+java.toolchain.languageVersion = JavaLanguageVersion.of(8)
+minecraft {
+    mcVersion.set('1.7.10')
+}
+
+repositories {
+    mavenCentral()
+}
+
+def commonJava = objects.sourceDirectorySet('sharedTimeline', 'Shared Damocles timeline')
+commonJava.srcDir(new File(sharedRoot, 'src/main/java'))
+commonJava.include('**/DamoclesTimeline.java', '**/EmplacementAnimation.java')
+sourceSets.main.java.source(commonJava)
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+}
+
+def metadata = [modVersion: version.toString()]
+tasks.named('processResources', ProcessResources) {
+    inputs.properties(metadata)
+    filteringCharset = 'UTF-8'
+    filesMatching(['mcmod.info', 'version.properties']) { expand(metadata) }
+    from(new File(sharedRoot, 'src/main/resources')) {
+        include 'gocstrike-logo.png', 'assets/gocstrike/animation/**', 'assets/gocstrike/sounds/**',
+                'assets/gocstrike/subtitles.json', 'assets/gocstrike/textures/goc_seal.png',
+                'assets/gocstrike/models/item/damocles_sword.obj', 'assets/gocstrike/models/item/damocles_sword.mtl'
+    }
+    from(new File(sharedRoot, 'src/main/resources/assets/gocstrike/textures/item')) {
+        include 'thaumaturgic_strike.png'
+        into 'assets/gocstrike/textures/items'
+    }
+    from(sharedRoot) {
+        include 'LICENSE', 'MODEL_LICENSE.txt'
+        into 'META-INF/licenses'
+    }
+}
+
+def embedded = configurations.create('embedded')
+configurations.implementation.extendsFrom(embedded)
+
+dependencies {
+    // 1.7.10 没有 JOML，内嵌并重定位以复用模型的四元数插值并隔离整合包依赖。
+    add(embedded.name, 'org.joml:joml:1.10.5')
+}
+
+tasks.named('shadowJar') {
+    configurations = [embedded]
+    archiveClassifier = 'bundled-dev'
+    relocate 'org.joml', 'com.xiaoyu.gocstrike.internal.joml'
+}
+
+tasks.named('reobfJar') {
+    setInputJarFromTask(tasks.named('shadowJar', Jar))
+}

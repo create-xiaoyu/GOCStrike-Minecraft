@@ -4,7 +4,27 @@
 
 # 奇术打击
 
-Minecraft **1.21.1 / NeoForge 21.1.265** 模组，需要 Java 21，客户端和服务器均需安装。
+客户端和服务器均需安装与 Minecraft 版本对应的 GOC Strike JAR。
+
+[实现说明（NeoForge 1.21.1）](docs/implementation-1.21.1.md)
+
+| Minecraft | 加载器构建 | Java | Gradle 任务 |
+| --- | --- | --- | --- |
+| 1.7.10 | Forge 10.13.4.1614 | 8 | `-p ports/forge-1.7.10 build` |
+| 1.12.2 | Forge 14.23.5.2847（构建） | 8 | `-p ports/forge-1.12.2 build` |
+| 1.19.3 | Forge 44.1.23 | 17 | `:forge-1.19.3:build` |
+| 1.19.4 | Forge 45.4.5 | 17 | `:forge-1.19.4:build` |
+| 1.20 | Forge 46.0.14 | 17 | `:forge-1.20:build` |
+| 1.20.1 | Forge 47.4.28 | 17 | `:forge-1.20.1:build` |
+| 1.21.1 | NeoForge 21.1.265 | 21 | `:build` |
+| 1.21.2 | NeoForge 21.2.1-beta | 21 | `:neoforge-1.21.2:build` |
+| 1.21.3 | NeoForge 21.3.100 | 21 | `:neoforge-1.21.3:build` |
+| 1.21.4 | NeoForge 21.4.161 | 21 | `:neoforge-1.21.4:build` |
+| 26.1 | NeoForge 26.1.0.19-beta | 25 | `:neoforge-26.1:build` |
+| 26.1.1 | NeoForge 26.1.1.15-beta | 25 | `:neoforge-26.1.1:build` |
+| 26.1.2 | NeoForge 26.1.2.129 | 25 | `:neoforge-26.1.2:build` |
+| 26.2 | NeoForge 26.2.0.95 | 25 | `:neoforge-26.2:build` |
+| 26.3 | NeoForge 26.3.0.115 | 25 | `:neoforge-26.3:build` |
 
 ## 使用
 
@@ -40,13 +60,34 @@ Minecraft **1.21.1 / NeoForge 21.1.265** 模组，需要 Java 21，客户端和�
 - 巨剑小幅浮动并旋转五圈，充能让剑柄至剑尖依次变得更亮。充能结束时停转、扩散光环，随后短促上提，并在音乐第 70 秒下刺。
 - 最终打击只抹除被锁定的生物，沿用上方所述的抹除规则。下刺末段拖出短残影，命中时在剑尖闪光并同时播放晶裂和重击，此时配乐短暂压低音量。剑尖停顿约 0.27 秒，双层冲击环从接触点扩散，法阵先震开，剑和徽记随后分解。音乐在第 78 秒结束。多人重叠施放时，附近观众收听最近一场达摩克里斯配乐。
 
+### Forge 1.7.10
+
+两件物品位于创造模式的「工具」栏。使用 `/give` 时，把 `@s` 替换为玩家名，物品 ID 相同。提示显示在聊天栏。该版本没有副手和旁观者模式，达摩克里斯之剑落下时用玻璃破碎声替代紫水晶音效。法阵的模糊泛光需要 OpenGL 3.0 和游戏的帧缓冲支持，条件不足时仍会绘制发光法阵线条。
+
+### Forge 1.12.2
+
+客户端和服务器都安装 `gocstrike-forge-1.12.2-<模组版本>.jar`，使用 Java 8 和相同的 Forge 版本。发布 JAR 已在 Forge 14.23.5.2864 服务端验证。两件物品位于创造模式的「工具」栏，也可以用上方的 `/give` 命令。两件物品都支持副手，旁观者免疫打击。
+
+达摩克里斯之剑落下时用玻璃破碎声替代紫水晶音效。法阵的模糊泛光需要 OpenGL 3.0 和游戏帧缓冲支持，条件不足时仍会绘制发光线条。
+
 ## 构建
 
+用 Java 25 运行 Gradle，Gradle 会从本地工具链选择各版本所需的 JDK。
+
 ```powershell
-./gradlew.bat build
+./gradlew.bat build                  # 构建根项目包含的版本
+./gradlew.bat -p ports/forge-1.7.10 build  # 用本地 JDK 8 工具链独立构建 Forge 1.7.10
+./gradlew.bat -p ports/forge-1.12.2 build  # 用本地 JDK 8 工具链独立构建 Forge 1.12.2
+./gradlew.bat :build                 # 只构建 NeoForge 1.21.1
+./gradlew.bat :forge-1.20.1:build    # 只构建 Forge 1.20.1
+./gradlew.bat :neoforge-26.3:build   # 只构建 NeoForge 26.3
 ```
 
-产物为 `build/libs/gocstrike-1.0.1.jar`。模型和动画已经打包，正常构建不需要 Blender、Unity 或 GIMP。
+如果 Gradle 未自动发现已安装的 JDK，可用 `-Porg.gradle.java.installations.paths` 传入以逗号分隔的 JDK 安装目录。
+
+发布 JAR 统一命名为 `gocstrike-<加载器>-<Minecraft 版本>-<模组版本>.jar`。NeoForge 1.21.1 的 `gocstrike-neoforge-1.21.1-<模组版本>.jar` 位于 `build/libs/`，其他版本的 JAR 位于 `ports/<加载器>-<Minecraft 版本>/build/libs/`。各版本均打包原有模型、动画和配乐。
+
+Forge 1.7.10 和 1.12.2 使用 RetroFuturaGradle 独立构建。安装文件名形如 `gocstrike-forge-<Minecraft 版本>-<模组版本>.jar` 的 JAR。同目录下带 `-dev` 或 `-bundled-dev` 的文件用于开发。
 
 ## 动画来源与再生成
 

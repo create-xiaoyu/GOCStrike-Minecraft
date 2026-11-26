@@ -1,0 +1,11 @@
+[
+  {
+    "modid": "gocstrike",
+    "name": "GOC Strike",
+    "description": "Thaumaturgic Strike and the Sword of Damocles",
+    "version": "${modVersion}",
+    "mcversion": "1.7.10",
+    "authorList": ["create_xiaoyu"],
+    "logoFile": "gocstrike-logo.png"
+  }
+]

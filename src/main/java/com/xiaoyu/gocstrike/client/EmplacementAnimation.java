@@ -1,6 +1,8 @@
 package com.xiaoyu.gocstrike.client;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Arrays;
@@ -24,13 +26,19 @@ public final class EmplacementAnimation {
     private final Quaternionf nextRotation = new Quaternionf();
 
     public EmplacementAnimation() throws IOException {
-        var resource = EmplacementAnimation.class.getResourceAsStream("/assets/gocstrike/animation/emplacement.bin.gz");
+        InputStream resource = EmplacementAnimation.class.getResourceAsStream("/assets/gocstrike/animation/emplacement.bin.gz");
         if (resource == null) {
             throw new IOException("Missing emplacement animation");
         }
         ByteBuffer data;
-        try (var stream = new GZIPInputStream(resource)) {
-            data = ByteBuffer.wrap(stream.readAllBytes()).order(ByteOrder.LITTLE_ENDIAN);
+        try (InputStream input = resource; GZIPInputStream stream = new GZIPInputStream(input)) {
+            ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+            byte[] chunk = new byte[16384];
+            int count;
+            while ((count = stream.read(chunk)) != -1) {
+                bytes.write(chunk, 0, count);
+            }
+            data = ByteBuffer.wrap(bytes.toByteArray()).order(ByteOrder.LITTLE_ENDIAN);
         }
         if (data.getInt() != 0x474f4331 || data.getInt() != 1) {
             throw new IOException("Unsupported emplacement animation format");
@@ -115,7 +123,7 @@ public final class EmplacementAnimation {
                 }
                 node.cursor = key;
                 int next = Math.min(key + 1, node.frames.length - 1);
-                float weight = key == next ? 0 : Math.clamp((frame - node.frames[key]) / (node.frames[next] - node.frames[key]), 0, 1);
+                float weight = key == next ? 0 : Math.max(0, Math.min(1, (frame - node.frames[key]) / (node.frames[next] - node.frames[key])));
                 int a = key * STRIDE;
                 int b = next * STRIDE;
                 float[] k = node.keys;

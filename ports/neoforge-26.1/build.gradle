@@ -1,0 +1,7 @@
+plugins {
+    id 'net.neoforged.moddev'
+}
+
+ext.neoVersion = '26.1.0.19-beta'
+ext.legacyBlaze3D = true
+apply from: rootProject.file('ports/neoforge-26-shared/neoforge.gradle')

@@ -1,0 +1,25 @@
+modLoader="javafml"
+loaderVersion="[${fmlVersion},)"
+license="MIT (code); All Rights Reserved (magic-circle models)"
+
+[[mods]]
+modId="gocstrike"
+version="${modVersion}"
+displayName="GOC Strike"
+logoFile="gocstrike-logo.png"
+authors="create_xiaoyu"
+description="奇术打击和达摩克里斯之剑"
+
+[[dependencies.gocstrike]]
+modId="forge"
+mandatory=true
+versionRange="[${forgeVersion},)"
+ordering="NONE"
+side="BOTH"
+
+[[dependencies.gocstrike]]
+modId="minecraft"
+mandatory=true
+versionRange="[${minecraftVersion}]"
+ordering="NONE"
+side="BOTH"

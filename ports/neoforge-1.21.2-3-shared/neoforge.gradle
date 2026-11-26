@@ -1,0 +1,62 @@
+group = rootProject.mod_group_id
+version = rootProject.mod_version
+base.archivesName = "gocstrike-${project.name}"
+java.toolchain.languageVersion = JavaLanguageVersion.of(21)
+def neoVersion = project.ext.neoVersion
+def minecraftVersion = project.name.substring('neoforge-'.length())
+
+neoForge {
+    version = neoVersion
+    runs {
+        client { client() }
+        server {
+            server()
+            programArgument '--nogui'
+        }
+    }
+    mods {
+        gocstrike {
+            sourceSet sourceSets.main
+        }
+    }
+}
+
+def metadata = [
+        loader_version_range: rootProject.loader_version_range,
+        mod_id: rootProject.mod_id,
+        mod_name: rootProject.mod_name,
+        mod_license: rootProject.mod_license,
+        mod_version: rootProject.mod_version,
+        neo_version: neoVersion,
+        minecraft_version_range: "[${minecraftVersion}]",
+]
+sourceSets.main.resources.srcDirs(rootProject.file('src/main/resources'), rootProject.file('src/main/templates'))
+tasks.named('processResources', ProcessResources) {
+    filteringCharset = 'UTF-8'
+    inputs.properties(metadata)
+    filesMatching('META-INF/neoforge.mods.toml') {
+        expand(metadata)
+    }
+    filesMatching('assets/gocstrike/shaders/core/*.json') {
+        filter { line -> line.replace('"gocstrike:bloom_', '"gocstrike:core/bloom_') }
+    }
+}
+def sharedJava = objects.sourceDirectorySet('sharedJava', 'GOC Strike common sources')
+sharedJava.srcDir(rootProject.file('src/main/java'))
+sharedJava.include('**/DamoclesTimeline.java', '**/EmplacementAnimation.java', '**/StrikeEffects.java',
+        '**/StrikeSubtitles.java', '**/StrikeMedia.java', '**/StrikeScore.java')
+sourceSets.main.java.source(sharedJava)
+def platformJava = objects.sourceDirectorySet('neoPlatformJava', 'NeoForge shared platform sources')
+platformJava.srcDir(rootProject.file('ports/neoforge-1.21.2-3-shared/src/main/java'))
+platformJava.exclude(project.findProperty('platformSourceOverrides') ?: [])
+sourceSets.main.java.source(platformJava)
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+}
+
+tasks.named('jar', Jar) {
+    from(rootProject.files('LICENSE', 'MODEL_LICENSE.txt', 'TEMPLATE_LICENSE.txt')) {
+        into('META-INF/licenses')
+    }
+}

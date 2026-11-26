@@ -1,0 +1,6 @@
+plugins {
+    id 'net.neoforged.moddev'
+}
+
+ext.neoVersion = '26.3.0.115'
+apply from: rootProject.file('ports/neoforge-26-shared/neoforge.gradle')

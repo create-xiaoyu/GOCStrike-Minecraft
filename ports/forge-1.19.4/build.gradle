@@ -1,0 +1,15 @@
+plugins {
+    id 'net.neoforged.moddev.legacyforge'
+}
+
+ext.forgeVersion = '45.4.5'
+ext.platformSources = 'ports/forge-1.19-shared/src/main/java'
+ext.packFormat = 13
+ext.dataPackFormat = 12
+ext.sharedSourceOverrides = [
+        'com/xiaoyu/gocstrike/client/StrikeEffects.java',
+        'com/xiaoyu/gocstrike/client/ForgeRenderStage.java',
+        'com/xiaoyu/gocstrike/ForgeWorld.java',
+]
+ext.rootSourceOverrides = ['com/xiaoyu/gocstrike/client/StrikeSubtitles.java']
+apply from: rootProject.file('ports/forge-1.20-shared/forge.gradle')

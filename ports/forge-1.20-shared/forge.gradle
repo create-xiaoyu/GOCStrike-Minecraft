@@ -1,0 +1,69 @@
+group = rootProject.mod_group_id
+version = rootProject.mod_version
+base.archivesName = "gocstrike-${project.name}"
+java.toolchain.languageVersion = JavaLanguageVersion.of(17)
+
+def minecraftVersion = project.name.substring('forge-'.length())
+def forgeVersion = project.ext.forgeVersion
+legacyForge {
+    version = "${minecraftVersion}-${forgeVersion}"
+    runs {
+        client { client() }
+        server {
+            server()
+            programArgument '--nogui'
+        }
+    }
+    mods {
+        gocstrike {
+            sourceSet sourceSets.main
+        }
+    }
+}
+
+// 与 NeoForge 共用资源；Forge 的 OBJ 加载器和白色贴图注册在 forge 命名空间。
+def sharedSourceOverrides = project.findProperty('sharedSourceOverrides') ?: []
+def rootSourceOverrides = project.findProperty('rootSourceOverrides') ?: []
+def sharedJava = objects.sourceDirectorySet('forgeSharedJava', 'Forge shared sources')
+sharedJava.srcDir(rootProject.file('ports/forge-1.20-shared/src/main/java'))
+sharedJava.exclude(sharedSourceOverrides)
+
+// 直接编译可跨版本使用的时间轴、动画数据读取器和字幕。
+def commonJava = objects.sourceDirectorySet('gocstrikeCommonJava', 'GOC Strike common sources')
+commonJava.srcDir(rootProject.file('src/main/java'))
+commonJava.include('**/DamoclesTimeline.java', '**/EmplacementAnimation.java', '**/StrikeSubtitles.java')
+commonJava.exclude(rootSourceOverrides)
+sourceSets.main.java.source(sharedJava).source(commonJava)
+if (project.hasProperty('platformSources')) {
+    sourceSets.main.java.srcDir(rootProject.file(project.platformSources))
+}
+sourceSets.main.resources.srcDirs(rootProject.file('ports/forge-1.20-shared/src/main/resources'),
+        rootProject.file('src/main/resources'))
+def metadata = [
+        modVersion: version.toString(),
+        forgeVersion: forgeVersion,
+        fmlVersion: forgeVersion.tokenize('.').first(),
+        minecraftVersion: minecraftVersion,
+        packFormat: project.findProperty('packFormat') ?: 15,
+        dataPackFormat: project.findProperty('dataPackFormat') ?: 15,
+]
+tasks.named('processResources', ProcessResources) {
+    filteringCharset = 'UTF-8'
+    inputs.properties(metadata)
+    filesMatching(['META-INF/mods.toml', 'pack.mcmeta']) {
+        expand(metadata)
+    }
+    filesMatching(['assets/gocstrike/models/item/damocles_sword.json', 'assets/gocstrike/models/item/damocles_sword.mtl']) {
+        filter { line -> line.replace('neoforge:', 'forge:') }
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+}
+
+tasks.named('jar', Jar) {
+    from(rootProject.files('LICENSE', 'MODEL_LICENSE.txt', 'TEMPLATE_LICENSE.txt')) {
+        into('META-INF/licenses')
+    }
+}
